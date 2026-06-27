@@ -198,3 +198,7 @@ npx shadcn@latest add button
 ```
 
 - Check if all variant of shadcn buttons work properly
+
+## Aditional clean up
+
+- remove src/App.css file
