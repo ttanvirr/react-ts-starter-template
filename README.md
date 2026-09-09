@@ -10,6 +10,7 @@
   - [2.4. Resolve path to use '@' for './src'](#24-resolve-path-to-use--for-src)
   - [2.5. Add Shadcn UI](#25-add-shadcn-ui)
   - [2.6. Aditional clean up](#26-aditional-clean-up)
+  - [2.7. Add a Shadcn theme](#27-add-a-shadcn-theme)
 
 # 1. Get started to use this template
 
@@ -215,3 +216,13 @@ Edit `src/App.tsx` to add shadcn buttons for testing:
 - remove `src/App.css` file
 
 Commit your changes
+
+## 2.7. Add a Shadcn theme
+
+Visit [Shadcn Themes](https://ui.shadcn.com/create) to create a color theme, get the code to use this theme in the existing Vite project.
+
+Sample command to add the theme in the existing Vite project:
+
+```bash
+npx shadcn@latest apply --preset b1s91W4Ke
+```
