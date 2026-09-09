@@ -1,6 +1,17 @@
 - This template is a react starter with vite-typescript-tailwindcss-shadcn
 
-# Get started to use this template
+# Table of contents <!-- omit in toc -->
+
+- [1. Get started to use this template](#1-get-started-to-use-this-template)
+- [2. Create this starter from scratch](#2-create-this-starter-from-scratch)
+  - [2.1. Create a Vite + React + TypeScript Project](#21-create-a-vite--react--typescript-project)
+  - [2.2. Expanding the ESLint configuration](#22-expanding-the-eslint-configuration)
+  - [2.3. Install TailwindCSS](#23-install-tailwindcss)
+  - [2.4. Resolve path to use '@' for './src'](#24-resolve-path-to-use--for-src)
+  - [2.5. Add Shadcn UI](#25-add-shadcn-ui)
+  - [2.6. Aditional clean up](#26-aditional-clean-up)
+
+# 1. Get started to use this template
 
 - Rename the project name
 - Intall dependencies
@@ -15,9 +26,9 @@ npm install
 npm run dev
 ```
 
-# Create this starter from scratch
+# 2. Create this starter from scratch
 
-## Create a Vite + React + TypeScript Project
+## 2.1. Create a Vite + React + TypeScript Project
 
 - [Ref: Intallation guide](https://tailwindcss.com/docs/installation/using-vite)
 
@@ -35,7 +46,7 @@ npm run dev
 
 - Check if the project runs without any problems
 
-## Expanding the ESLint configuration
+## 2.2. Expanding the ESLint configuration
 
 If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
@@ -69,7 +80,7 @@ export default defineConfig([
 ])
 ```
 
-## Install TailwindCSS
+## 2.3. Install TailwindCSS
 
 ```bash
 npm install tailwindcss @tailwindcss/vite
@@ -90,13 +101,13 @@ export default defineConfig({
 })
 ```
 
-- open index.css and replace everything with the following:
+- open `src/index.css` and replace everything with the following:
 
 ```css
 @import "tailwindcss";
 ```
 
-- In src/App.tsx replace everything with this:
+- In `src/App.tsx` replace everything with this:
 
 ```tsx
 const App = () => {
@@ -108,7 +119,7 @@ export default App
 
 - Check if the tailwind classes works well without any issue
 
-## Resolve path to use '@' for './src'
+## 2.4. Resolve path to use '@' for './src'
 
 - open `tsconfig.json` and compare with following:
 
@@ -143,7 +154,7 @@ export default App
 }
 ```
 
-- Check if @types/node is installed (usually installed). In no, then install it.
+- Check if `@types/node` is installed (usually installed). In no, then install it.
 
 ```bash
 npm install -D @types/node
@@ -162,7 +173,7 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src"),
+      "@": path.resolve(import.meta.dirname, "./src"),
     },
   },
 })
@@ -170,24 +181,24 @@ export default defineConfig({
 
 - Check if auto import uses '@' for use cases.
 
-## Add Shadcn UI
+## 2.5. Add Shadcn UI
 
 - [Ref. Shadcn Installation Guide](https://ui.shadcn.com/docs/installation/vite#existing-project)
 
-- Run thecommand to set up shadcn/ui:
+Run the command to set up `shadcn/ui` (accept recommended defaults):
 
 ```bash
 npx shadcn@latest init
 ```
 
-- A button.tsx component should be automatically created at src/components
-- If not, run the command to add it
+A `button.tsx` component should be automatically created at `src/components`.
+If not, run the command to add it:
 
 ```bash
 npx shadcn@latest add button
 ```
 
-- Edit src/App.tsx to add shadcn buttons
+Edit `src/App.tsx` to add shadcn buttons for testing:
 
 ```tsx
 <div className="flex min-h-svh flex-col items-center justify-center">
@@ -199,6 +210,8 @@ npx shadcn@latest add button
 
 - Check if all variant of shadcn buttons work properly
 
-## Aditional clean up
+## 2.6. Aditional clean up
 
-- remove src/App.css file
+- remove `src/App.css` file
+
+Commit your changes
