@@ -11,6 +11,10 @@
   - [2.5. Add Shadcn UI](#25-add-shadcn-ui)
   - [2.6. Aditional clean up](#26-aditional-clean-up)
   - [2.7. Add a Shadcn theme](#27-add-a-shadcn-theme)
+  - [2.8. Add dark mode with a theme toggler](#28-add-dark-mode-with-a-theme-toggler)
+    - [2.8.1. Theme Provider](#281-theme-provider)
+    - [2.8.2. Theme Toggler](#282-theme-toggler)
+  - [2.9. Routing with React Router](#29-routing-with-react-router)
 
 # 1. Get started to use this template
 
@@ -217,6 +221,8 @@ Edit `src/App.tsx` to add shadcn buttons for testing:
 
 Commit your changes
 
+[⬆️ Return to Table of contents](#table-of-contents)
+
 ## 2.7. Add a Shadcn theme
 
 Visit [Shadcn Themes](https://ui.shadcn.com/create) to create a color theme, get the code to use this theme in the existing Vite project.
@@ -226,3 +232,287 @@ Sample command to add the theme in the existing Vite project:
 ```bash
 npx shadcn@latest apply --preset b1s91W4Ke
 ```
+
+## 2.8. Add dark mode with a theme toggler
+
+(Ref: [Shadcn Dark Mode guide (Vite)](https://ui.shadcn.com/docs/dark-mode/vite))
+
+We'll create a theme provider that reads/writes the theme to `localStorage` and toggles the `dark` class on `<html>`.
+
+### 2.8.1. Theme Provider
+
+First, create `src/context/theme-context.ts`:
+
+```ts
+import { createContext } from "react"
+
+export type Theme = "dark" | "light" | "system"
+
+export interface ThemeProviderState {
+  theme: Theme
+  setTheme: (theme: Theme) => void
+}
+
+export const initialState: ThemeProviderState = {
+  theme: "system",
+  setTheme: () => null,
+}
+
+export const ThemeProviderContext =
+  createContext<ThemeProviderState>(initialState)
+```
+
+Then create `src/hooks/use-theme.ts`:
+
+```ts
+import { ThemeProviderContext } from "@/context/theme-context"
+import { useContext } from "react"
+
+export const useTheme = () => {
+  const context = useContext(ThemeProviderContext)
+
+  if (context === undefined) {
+    throw new Error("useTheme must be used within a ThemeProvider")
+  }
+
+  return context
+}
+```
+
+Finally, create `src/components/theme-provider.tsx`:
+
+```tsx
+import { useEffect, useState } from "react"
+import { ThemeProviderContext, type Theme } from "@/context/theme-context"
+
+interface ThemeProviderProps {
+  children: React.ReactNode
+  defaultTheme?: Theme
+  storageKey?: string
+}
+
+export function ThemeProvider({
+  children,
+  defaultTheme = "system",
+  storageKey = "vite-ui-theme",
+  ...props
+}: ThemeProviderProps) {
+  const [theme, setTheme] = useState<Theme>(
+    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
+  )
+
+  useEffect(() => {
+    const root = window.document.documentElement
+
+    root.classList.remove("light", "dark")
+
+    if (theme === "system") {
+      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+        .matches
+        ? "dark"
+        : "light"
+
+      root.classList.add(systemTheme)
+      return
+    }
+
+    root.classList.add(theme)
+  }, [theme])
+
+  const value = {
+    theme,
+    setTheme: (theme: Theme) => {
+      localStorage.setItem(storageKey, theme)
+      setTheme(theme)
+    },
+  }
+
+  return (
+    <ThemeProviderContext.Provider {...props} value={value}>
+      {children}
+    </ThemeProviderContext.Provider>
+  )
+}
+```
+
+Then, wrap the app with the provider in `src/main.tsx`:
+
+```tsx
+import { ThemeProvider } from "@/components/theme-provider"
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+      <App />
+    </ThemeProvider>
+  </StrictMode>,
+)
+```
+
+### 2.8.2. Theme Toggler
+
+Install the dropdown component needed for the toggle:
+
+```bash
+npx shadcn@latest add dropdown-menu
+```
+
+Create the toggle button in `src/components/mode-toggle.tsx`:
+
+```tsx
+import { Moon, Sun } from "lucide-react"
+
+import { Button } from "@/components/ui/button"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { useTheme } from "@/hooks/use-theme"
+
+export function ModeToggle() {
+  const { setTheme } = useTheme()
+
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="icon">
+          <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+          <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+          <span className="sr-only">Toggle theme</span>
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end">
+        <DropdownMenuItem onClick={() => setTheme("light")}>
+          Light
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("dark")}>
+          Dark
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("system")}>
+          System
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
+```
+
+Drop `<ModeToggle />` anywhere in `App.tsx` (e.g. a top-right corner) and confirm light/dark/system all switch the shadcn theme correctly.
+
+Commit your changes.
+
+[⬆️ Return to Table of contents](#table-of-contents)
+
+## 2.9. Routing with React Router
+
+Ref: [React Router](https://reactrouter.com/start/data/installation).
+
+We'll prefer `Data Mode` for React Router for most React projects.
+
+First, install React Router:
+
+```bash
+npm i react-router
+```
+
+Edit `App.tsx` to create a proper site-layout using React Router's `Outlet`:
+
+```tsx
+import { NavLink, Outlet } from "react-router"
+import { ModeToggle } from "@/components/mode-toggle"
+
+const App = () => {
+  return (
+    <>
+      <header className="border-b">
+        <nav className="container mx-auto flex items-center gap-4 px-4 h-14">
+          <NavLink to="/">Home</NavLink>
+          <NavLink to="/about">About</NavLink>
+          <ModeToggle />
+        </nav>
+      </header>
+
+      <main className="container mx-auto py-8">
+        <Outlet />
+      </main>
+    </>
+  )
+}
+
+export default App
+```
+
+Create a couple of pages in `src/pages`:
+
+`src/pages/Home.tsx`
+
+```tsx
+const HomePage = () => {
+  return <div>Welcome to Home!</div>
+}
+
+export default HomePage
+```
+
+and `src/pages/About.tsx`
+
+```tsx
+const AboutPage = () => {
+  return <div>About us!</div>
+}
+
+export default AboutPage
+```
+
+Create routes in `src/routes.tsx`:
+
+```tsx
+import App from "@/App"
+import AboutPage from "@/pages/About"
+import HomePage from "@/pages/Home"
+import { createBrowserRouter } from "react-router"
+
+export const router = createBrowserRouter([
+  {
+    path: "/",
+    Component: App,
+    children: [
+      {
+        index: true,
+        Component: HomePage,
+      },
+      {
+        path: "about",
+        Component: AboutPage,
+      },
+    ],
+  },
+])
+```
+
+Finally, edit `main.tsx` as follows:
+
+```tsx
+import { StrictMode } from "react"
+import { createRoot } from "react-dom/client"
+import "./index.css"
+import { ThemeProvider } from "@/components/theme-provider"
+import { RouterProvider } from "react-router/dom"
+import { router } from "@/routes"
+
+createRoot(document.getElementById("root")!).render(
+  <StrictMode>
+    <ThemeProvider defaultTheme="system" storageKey="vite-ui-theme">
+      <RouterProvider router={router} />
+    </ThemeProvider>
+  </StrictMode>,
+)
+```
+
+Note that we didn't include the `App` component here. Rather, we've included the `App` component in `src/routes.tsx` as the root component.
+
+Commit your changes.
+
+[⬆️ Return to Table of contents](#table-of-contents)
